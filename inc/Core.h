@@ -1,17 +1,28 @@
-#ifndef _CORE_H_
-#define _CORE_H_
+#ifndef __CORE_H__
+#define __CORE_H__
+
+#include "Graph.h"
+#include "Factory.h"
 #include "utils.h"
+#include <fstream>
 
-class Element {
+class Core {
+    Graph g;
+    Factory f;
+
     public:
-    virtual bool request_push(); //Returns whether we can push or not.
-    virtual bool request_pop(); //Returns whether it has anything pending or not.
+    
+    Core(Factory f);
 
-    virtual void push(); //Add an element to the queue.
-    virtual void pop(); //Take an element from the queue.
+    void parse(string path);
 
-    virtual void commit(); //Uptade internal state for next cycle.
-    virtual stringstream report(); //Print its stats.
+    stringstream simulate(int cycles);
+
+    private:
+
+    void getAndAddNodes(ifstream &spec);
+    void getAndAddWires(ifstream &spec);
+
 };
 
 #endif

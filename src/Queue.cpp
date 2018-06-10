@@ -1,11 +1,15 @@
 #include "Queue.h"
 #include "utils.h"
 
-Queue::Queue(int id, int size){
+Queue::Queue(string id, int size){
     this->size = size;
     this->id = id;
     this->ocupation = 0;
     this->next_ocupation = 0;
+}
+
+string Queue::getId(){
+    return id;
 }
 
 bool Queue::request_push(){

@@ -1,18 +1,27 @@
-#ifndef _QUEUE_H_
-#define _QUEUE_H_
+#ifndef _PROCESS_H_
+#define _PROCESS_H_
 
 #include "Element.h"
+#include <random>
 
-class Queue : virtual public Element {
+typedef struct {
+    int pending_cycles;
+    bool free;
+} ProcessState;
+
+class Process : virtual public Element {
 
     string id;
-    int size;
-    int ocupation;
-    int next_ocupation;
+    float mean;
+    float std;
+    std::normal_distribution<float> latency;
+
+    ProcessState state;
+    ProcessState next_state;
 
 public:
 
-    Queue(string id, int size);
+    Process(string id, float mean, float std);
 
     string getId();
 

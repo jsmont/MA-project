@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <sstream>
+#include <assert.h>
 using namespace std;
 
 
