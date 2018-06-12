@@ -1,4 +1,6 @@
 #include "Core.h"
+#include "Process.h"
+#include "Queue.h"
 
 Core::Core(Factory f){
 
@@ -35,11 +37,23 @@ void Core::getAndAddNodes(ifstream &spec){
             string id;
             sline >> id;
 
+            Element* e;
+
             if(type == "P") {
-                cout << "Processor found: " << id << endl;
+                float mean, deviation;
+                sline >> mean >> deviation;
+                cout << "Processor found: " << id << "with mean: " << mean << " and deviation: " << deviation << endl;
+                e = (Element *) new Process(id, mean, deviation);
             } else if(type == "Q") {
-                cout << "Queue found: " << id << endl;
+                int size;
+                sline >> size;
+                cout << "Queue found: " << id << " of size: " << size << endl;
+                e = (Element *) new Queue(id, size);
             }
+
+            Node* n = this->f.node(id, e);
+
+            this->g.addNode(n);
             
         } else {
             blankFound = true;
