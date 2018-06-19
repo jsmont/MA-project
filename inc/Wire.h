@@ -55,8 +55,10 @@ template <class T>
 TypedWire<T>::TypedWire(int latency, string srcId, string destId){
     this->latency = latency;
     state.req = false;
+    state.req_pending_cycles = 0;
     next_state.req = false;
     state.answ = false;
+    state.answ_pending_cycles = 0;
     next_state.answ = false;
     src_id = srcId;
     dest_id = destId;
@@ -110,7 +112,7 @@ void TypedWire<T>::sendReq(T message){
 
 template <class T>
 bool TypedWire<T>::arrivedAnsw(){
-    return !state.answ && (state.answ_pending_cycles == 0);
+    return state.answ && (state.answ_pending_cycles == 0);
 }
 
 template <class T>
@@ -137,6 +139,8 @@ void TypedWire<T>::sendAnsw(T message){
 template <class T>
 void TypedWire<T>::commit(){
 
+    //D("Commiting wire " << this->src_id << "->" << this->dest_id);
+
     state = next_state;
 
     if(next_state.answ){
@@ -154,7 +158,12 @@ void TypedWire<T>::commit(){
 template <class T>
 stringstream TypedWire<T>::report(){
     stringstream r;
-    r << "W: " << src_id << "->" << dest_id << "\tR: " << state.req << "\tM: " << state.req_message << "\tP:" << state.req_pending_cycles << "\t:A: " << state.answ << "\tM: " << state.answ_message << "\tP:" << state.answ_pending_cycles << endl;
+    /*
+    r << "W: " << this->src_id << "->" << this->dest_id << "\tR: " << this->state.req << "\tM: " << this->state.req_message;
+    r <<"\tP: " << this->state.req_pending_cycles << "\tA: " << this->state.answ << "\tM: " << this->state.answ_message;
+    r << "\tP:" << this->state.answ_pending_cycles << endl;
+    //D("Wire reported");
+    */
 
     return r;
 }

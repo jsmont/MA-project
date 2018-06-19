@@ -9,8 +9,11 @@
 
 enum class AckMessage{
     REQ,
-    ACK
+    ACK,
+    NACK
 };
+
+std::ostream& operator<<(std::ostream& os, AckMessage& f);
 
 enum class ControllerInState {
     IDLE,
@@ -52,7 +55,7 @@ class ControllerOutAck : public ControllerOut {
     ControllerOutAck(Element* e);
     void step();
     void addWire(Wire* w);
-    
+
 };
 
 #endif

@@ -12,6 +12,7 @@ void Graph::addNode(Node* n){
     }
 
     nodes.push_back(n);
+    D("Added node " << n->getId());
 }
 
 void Graph::addWire(Wire* w){
@@ -26,18 +27,20 @@ void Graph::addWire(Wire* w){
     for(int i = 0; i < nodes.size() && (!srcFound || !destFound); ++i){
         if(!srcFound && (w->getSrcId() == nodes[i]->getId())){
             srcFound = true;
-            ControllerIn* in = nodes[i]->getControllerIn();
+            ControllerOut* in = nodes[i]->getControllerOut();
             in->addWire(w);
         }
         if(!destFound && (w->getDestId() == nodes[i]->getId())){
             destFound = true;
-            ControllerOut* out = nodes[i]->getControllerOut();
+            ControllerIn* out = nodes[i]->getControllerIn();
             out->addWire(w);
         }
     }
 
     assert(srcFound);
     assert(destFound);
+
+    D("Wire from " << w->getSrcId() << " to " << w->getDestId() << " added.");
 
 }
 

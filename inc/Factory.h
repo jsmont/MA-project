@@ -5,7 +5,8 @@
 #include "Element.h"
 
 enum class FactoryConfiguration {
-    Ack
+    Ack,
+    SCredited
 };
 
 class Factory{

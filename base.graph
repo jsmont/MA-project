@@ -1,0 +1,8 @@
+P: IN1 5 1
+P: IN2 5 1
+Q: Q1 5
+P: OUT1 5 1
+
+IN1: Q1 2
+IN2: Q1 2
+Q1: OUT1 0

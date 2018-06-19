@@ -1,7 +1,7 @@
 IDIR =./inc
 CC=g++-7
-CFLAGS=-I$(IDIR) #-O3 -march=native #-g
-DEFINES= -DDEBUG
+CFLAGS=-I$(IDIR) -O3 -march=native #-g
+DEFINES=# -DDEBUG
 
 SDIR=./src
 

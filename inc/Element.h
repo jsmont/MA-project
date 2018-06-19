@@ -5,6 +5,7 @@
 class Element {
     public:
     virtual string getId(){}
+    virtual int getCredits(){}
  
     virtual bool request_push(){} //Returns whether we can push or not.
     virtual bool request_pop(){} //Returns whether it has anything pending or not.

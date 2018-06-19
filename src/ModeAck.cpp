@@ -1,6 +1,23 @@
 #include "ModeAck.h"
 #include "utils.h"
 
+std::ostream& operator<<(std::ostream& os, AckMessage& f){
+    string id;
+    switch(f){
+        case AckMessage::REQ :
+            id = "REQ";
+            break;
+        case AckMessage::ACK :
+            id = "ACK";
+            break;
+        case AckMessage::NACK :
+            id = "NACK";
+        default:
+            id = "NULL";
+    }
+    os << id;
+}
+
 ControllerInAck::ControllerInAck(Element* e){
 
     this->e = e;
@@ -13,33 +30,28 @@ ControllerInAck::ControllerInAck(Element* e){
 void ControllerInAck::step(){
 
     if(wires.size() != 0){
-        bool served = false;
-        switch(state){
-            case ControllerInState::IDLE:
-                for(int i = lastServed+1; i != lastServed && !served; i = (i +1) % wires.size()){
-                    if(wires[i]->arrivedReq()){
+        int initial_i, i;
+        initial_i = i  = (lastServed+1)%wires.size();
+        do{
+            if(wires[i]->arrivedReq()){
 
-                        AckMessage m = wires[i]->getReq();
-                        e->push();
-                        wires[i]->sendAnsw(AckMessage::ACK);
-
-                        lastServed = i;
-                        served=true;
-                        state = ControllerInState::WAITING;
-                    }
-                }
-                break;
-            case ControllerInState::WAITING:
+                AckMessage m = wires[i]->getReq();
                 if(e->request_push()){
-                    state = ControllerInState::IDLE;
-                    step();
+                    e->push();
+                    wires[i]->sendAnsw(AckMessage::ACK);
+                } else {
+                    wires[i]->sendAnsw(AckMessage::NACK);
                 }
-                break;
-        }
+
+                lastServed = i;
+                state = ControllerInState::WAITING;
+            }
+            i = (i +1) % wires.size();
+        } while(i != initial_i);
     } else{
         if(e->request_push()) {
             e->push();
-            D("Inserting new ticket at Root node");
+            //D("Inserting new ticket at Root node");
         }
     }
 }
@@ -57,7 +69,6 @@ void ControllerInAck::addWire(Wire* w){
 
 }
 
-
 /////////////////////////////////////////////////////
 //   CONTROLLER OUT                                //
 /////////////////////////////////////////////////////
@@ -72,29 +83,43 @@ ControllerOutAck::ControllerOutAck(Element* e){
 
 
 void ControllerOutAck::step(){
+    
+    //D("Controller step: " << e->getId());
+    //D("Step: " << e->getId() << "\tW: " << wires.size());
 
     if(wires.size() != 0){
 
         bool served = false;
+        //if(state == ControllerOutState::IDLE) D("S: IDLE");
+        //if(state == ControllerOutState::WAITING) D("S: WAITING");
         switch(state){
 
             case ControllerOutState::IDLE:
                 if(e->request_pop()){
-                    for(int i = lastServed+1; i != lastServed && !served; i = (i+1)%wires.size()){
-                        if(!wires[i]->req_busy()){
+                    //D("Trying to serve ticket N:" << e->getId())
+                        for(int i = (lastServed+1)%wires.size(); i != lastServed && !served; i = (i+1)%wires.size()){
+                            if(!wires[i]->req_busy()){
+                                wires[i]->sendReq(AckMessage::REQ);
+                                state=ControllerOutState::WAITING;
+                                served=true;
+                                lastServed = i;
+                            }
+                        }
+                    if(!served){
+                        if(!wires[lastServed]->req_busy()){
                             wires[lastServed]->sendReq(AckMessage::REQ);
                             state=ControllerOutState::WAITING;
                             served=true;
-                            lastServed = i;
                         }
                     }
                 }
                 break;
             case ControllerOutState::WAITING:
                 if(wires[lastServed]->arrivedAnsw()){
-                    e->pop();
+                    AckMessage answer = wires[lastServed]->getAnsw();
+                    if(answer == AckMessage::ACK)
+                        e->pop();
                     state=ControllerOutState::IDLE;
-
                 }
                 break;
         }
@@ -102,7 +127,7 @@ void ControllerOutAck::step(){
     } else { 
         if(e->request_pop()){
             e->pop();
-            D("Ticket finished");
+            //D("Ticket finished");
         }
     }
 

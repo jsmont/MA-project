@@ -1,6 +1,7 @@
 #include "Core.h"
 #include "Process.h"
 #include "Queue.h"
+#include "utils.h"
 
 Core::Core(Factory f){
 
@@ -27,7 +28,9 @@ void Core::getAndAddNodes(ifstream &spec){
     bool blankFound = false;
     string line;
 
-    while( getline(spec, line) && !blankFound ){
+    D("Parsing elements");
+
+    while( !blankFound && getline(spec, line) ){
 
         istringstream sline(line);
         
@@ -42,12 +45,12 @@ void Core::getAndAddNodes(ifstream &spec){
             if(type == "P") {
                 float mean, deviation;
                 sline >> mean >> deviation;
-                cout << "Processor found: " << id << "with mean: " << mean << " and deviation: " << deviation << endl;
+                D("Processor found: " << id << " with mean: " << mean << " and deviation: " << deviation);
                 e = (Element *) new Process(id, mean, deviation);
             } else if(type == "Q") {
                 int size;
                 sline >> size;
-                cout << "Queue found: " << id << " of size: " << size << endl;
+                D("Queue found: " << id << " of size: " << size);
                 e = (Element *) new Queue(id, size);
             }
 
@@ -59,5 +62,44 @@ void Core::getAndAddNodes(ifstream &spec){
             blankFound = true;
         }
     }
+
+    D("Parsing wires");
+
+    while( getline(spec, line) ){
+
+        istringstream sline(line);
+
+        string sourceId;
+
+        if(getline(sline, sourceId, ':')){
+            
+            string destId;
+            int latency;
+
+            sline >> destId >> latency;
+
+            D("Wire found from " << sourceId << " to " << destId << " with latency " << latency);
+
+            Wire* w = this->f.wire(latency, sourceId, destId);
+            this->g.addWire(w);
+
+        }
+
+
+    }
+
+}
+
+stringstream Core::simulate(int cycles){
+
+    stringstream log;
+
+    for(int i = 0; i < cycles; ++i){
+        log << "[" << i << "]" << endl;
+        this->g.step();
+        log << this->g.report().str();
+    }
+
+    return log;
 
 }

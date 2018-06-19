@@ -11,7 +11,7 @@ using namespace std;
 #define D(s)
 #else
 #include <iostream>
-#define D(s) cout << s;
+#define D(s) cout << s << endl;
 #endif
 
 #endif

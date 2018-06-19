@@ -1,5 +1,6 @@
 #include "Factory.h"
 #include "ModeAck.h"
+#include "ModeSCredited.h"
 
 Factory::Factory(){
     this->config=FactoryConfiguration::Ack;
@@ -23,6 +24,12 @@ Node* Factory::node(string id, Element* e){
             in = new ControllerInAck(e);
             out = new ControllerOutAck(e);
             break;
+        case FactoryConfiguration::SCredited:
+            D("IN_MAGIC");
+            bool* emited = new bool;
+            in = new ControllerInSCredited(e, emited);
+            out = new ControllerOutSCredited(e, emited);
+            break;
     }
 
     n->in = in;
@@ -32,4 +39,19 @@ Node* Factory::node(string id, Element* e){
     
 }
 
+Wire* Factory::wire(int latency, string srcId, string destId){
 
+    Wire* w;
+
+    switch(config){
+        case FactoryConfiguration::Ack:
+            w = (Wire*) new TypedWire<AckMessage>(latency, srcId, destId);
+            break;
+        case FactoryConfiguration::SCredited:
+            w = (Wire*) new TypedWire<SCreditedMessage>(latency, srcId, destId);
+            break;
+    }
+
+    return w;
+
+}

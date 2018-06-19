@@ -14,6 +14,7 @@ class Process : virtual public Element {
     string id;
     float mean;
     float std;
+    bool finished;
     std::normal_distribution<float> latency;
 
     ProcessState state;
@@ -24,6 +25,7 @@ public:
     Process(string id, float mean, float std);
 
     string getId();
+    int getCredits();
 
     bool request_push(); //Returns whether we can push or not.
     bool request_pop(); //Returns whether it has anything pending or not.
