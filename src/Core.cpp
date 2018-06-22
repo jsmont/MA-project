@@ -34,6 +34,7 @@ void Core::getAndAddNodes(ifstream &spec){
 
         istringstream sline(line);
         
+        D(line);
         string type;
         
         if(getline(sline, type, ':')){

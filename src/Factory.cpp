@@ -25,13 +25,14 @@ Node* Factory::node(string id, Element* e){
             out = new ControllerOutAck(e);
             break;
         case FactoryConfiguration::SCredited:
-            D("IN_MAGIC");
             bool* emited = new bool;
+            *emited = false;
             in = new ControllerInSCredited(e, emited);
             out = new ControllerOutSCredited(e, emited);
             break;
     }
 
+    
     n->in = in;
     n->out = out;
 

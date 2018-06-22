@@ -38,9 +38,9 @@ int main(int argc, char* argv[])
 	Core c = Core(f);
 	
 	c.parse(graphF);
-
+    
     //Skip transitive part
-    log << c.simulate(100000).str() << endl;
+    log << c.simulate(1000000).str() << endl;
     log.close();
 
 }

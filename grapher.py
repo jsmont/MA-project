@@ -75,8 +75,7 @@ def treatLogFile(logFileSrc):
         average_throughput = sum(throughput[cut_throughput:])/len(throughput[cut_throughput:])
         print("Average throughput: " + str(average_throughput))
 
-    return (average_throughput, average_latency,) 
-'''
+        #return (average_throughput, average_latency,) 
         plt.figure(figure_count)
         figure_count+=1
         plt.scatter(range(len(latencies)), latencies, s=1)
@@ -88,7 +87,7 @@ def treatLogFile(logFileSrc):
         plt.scatter(range(len(throughput)), throughput, s=1)
         plt.axvline(x=cut_throughput, color="r", linestyle="--")
         plt.title('Throughput per packet')
-    return (average_throughput, average_latency,) '''
+    return (average_throughput, average_latency,) 
 
 
 def createGraphFile(destPath, inRate, inSize, outRate, outSize, outQSize, latency):
@@ -125,32 +124,42 @@ modes=("ack", "scredit",)
 def iterInRate(inRate, mode):
     return treatCase("inRate" + str(inRate) + "-" + mode, mode, inRate, inSize, outRate, outSize, outQSize, latency)
 
-initialValue = 0
-finalValue = 500
+iterInRate(1000,"scredit")
+'''
+initialValue = 10
+finalValue = 1000 
 step=5
 
 values = Parallel(n_jobs=8)(delayed(iterInRate)(i, j) for i  in range(initialValue, finalValue, step) for j in modes)
 
-'''
-for inRate in range(100,500):
-    values.append(treatCase("inRate" + str(inRate), inRate, inSize, outRate, outSize, outQSize, latency))
-'''
+idx = [ 1/rate for rate in range(initialValue, finalValue, step)]
 
 plt.figure(figure_count);
 figure_count+=1;
-plt.title("Average throughput over input in Rate")
+plt.title("Average throughput");
+plt.xlabel("Input throughput");
+plt.ylabel("Output throughput");
 for i in range(len(modes)):
-    plt.plot(range(initialValue,finalValue, step), [ v[0] for v in values[i::len(modes)]], label=modes[i])
+    plt.loglog(idx, [ v[0] for v in values[i::len(modes)]], label=modes[i])
+plt.axhline(y=1/outRate, label="Output ideal throughput", linestyle="--")
 plt.legend()
 plt.figure(figure_count);
 figure_count+=1;
-plt.title("Average latency over input in Rate")
+plt.title("Average latency")
+plt.xlabel("Input throughput")
+plt.ylabel("Latency")
 for i in range(len(modes)):
-    plt.plot(range(initialValue,finalValue, step), [ v[1] for v in values[i::len(modes)]], label=modes[i])
+    plt.loglog(idx, [ v[1] for v in values[i::len(modes)]], label=modes[i])
+plt.axhline(y=outRate, label="Output average latency", linestyle="--")
 plt.legend()
 plt.figure(figure_count)
 plt.title("Average latency over average throughput")
+plt.xlabel("Output throughput")
+plt.ylabel("Latency")
 for i in range(len(modes)):
     plt.scatter([v[0] for v in values[i::len(modes)]], [v[1] for v in values[i::len(modes)]], s=1, label=modes[i]) 
+plt.axvline(x=1/outRate, label="Output ideal throughput", linestyle="--")
 plt.legend()
+'''
 plt.show()
+

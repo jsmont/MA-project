@@ -2,15 +2,12 @@
 #define __WIRE_H__
 
 #include "utils.h"
+#include <queue>
 
 template <typename R>
 struct WireState{
-    R req_message;
-    int req_pending_cycles;
-    bool req;
-    R answ_message;
-    int answ_pending_cycles;
-    bool answ;
+    R message;
+    bool valid;
 };
 
 
@@ -25,8 +22,10 @@ class Wire{
 template <class T>
 class TypedWire : public Wire{
     int latency;
-    struct WireState<T> state;
-    struct WireState<T> next_state;
+    std::queue<WireState<T> > req;
+    std::queue<WireState<T> > answ;
+    bool pushed_req;
+    bool pushed_answ;
     string src_id;
     string dest_id;
     public:
@@ -54,14 +53,19 @@ class TypedWire : public Wire{
 template <class T>
 TypedWire<T>::TypedWire(int latency, string srcId, string destId){
     this->latency = latency;
-    state.req = false;
-    state.req_pending_cycles = 0;
-    next_state.req = false;
-    state.answ = false;
-    state.answ_pending_cycles = 0;
-    next_state.answ = false;
     src_id = srcId;
     dest_id = destId;
+    req = queue<WireState<T> >();
+    answ = queue<WireState<T> >();
+    for(int i = 0; i <= latency; ++i){
+        struct WireState<T> r,a;
+        r.valid = false;
+        a.valid = false;
+        req.push(r);
+        answ.push(a);
+    }
+    pushed_req = false;
+    pushed_answ = false;
 }
 
 template <class T>
@@ -76,63 +80,65 @@ string TypedWire<T>::getDestId(){
 
 template <class T>
 bool TypedWire<T>::req_busy(){
-    return state.req;
+    return pushed_req;
 }
 
 template <class T>
 bool TypedWire<T>::answ_busy(){
-    return state.answ;
+    return pushed_answ;
 }
 
 template <class T>
 bool TypedWire<T>::arrivedReq(){
-    return state.req && (state.req_pending_cycles == 0);
+    assert(!req.empty());
+    return req.front().valid;
 }
 
 template <class T>
 T TypedWire<T>::getReq(){
-    if(state.req){
-        if(state.req_pending_cycles == 0){
-            return state.req_message;
-        } else
-            perror("Tried to read an unfinished message");
+    assert(!req.empty());
+    if(req.front().valid){
+        return req.front().message;
     } else
         perror("Tried to read a request on a wire without a request");
-    return state.req_message;
+    return req.front().message;
 }
 
 template <class T>
 void TypedWire<T>::sendReq(T message){
-    if(!state.req){
-        next_state.req_message = message;
-        next_state.req_pending_cycles = latency;
-        next_state.req = true;
+    if(!pushed_req){
+        struct WireState<T> r;
+        r.valid = true;
+        r.message = message;
+        req.push(r);
+        pushed_req = true;
     } else perror("Tried to send a req on a busy wire");
 }
 
 template <class T>
 bool TypedWire<T>::arrivedAnsw(){
-    return state.answ && (state.answ_pending_cycles == 0);
+    assert(!answ.empty());
+    return answ.front().valid;
 }
 
 template <class T>
 T TypedWire<T>::getAnsw(){
-    if(state.answ){
-        if(state.answ_pending_cycles == 0){
-            return state.answ_message;
-        } else
-            perror("Tried to read an unfinished message");
+    assert(!answ.empty());
+    if(answ.front().valid){
+            return answ.front().message;
     } else
         perror("Tried to read an answer on a wire without an answer");
-    return state.answ_message;
+    return answ.front().message;
 }
 
 template <class T>
 void TypedWire<T>::sendAnsw(T message){
-    if(!state.answ){
-        next_state.answ_message = message;
-        next_state.answ_pending_cycles = latency;
-        next_state.answ = true;
+    if(!pushed_answ){
+        struct WireState<T> a;
+        a.valid = true;
+        a.message = message;
+        answ.push(a);
+        pushed_answ = true;
     } else perror("Tried to send an answer on a busy wire");
 }
 
@@ -141,18 +147,21 @@ void TypedWire<T>::commit(){
 
     //D("Commiting wire " << this->src_id << "->" << this->dest_id);
 
-    state = next_state;
-
-    if(next_state.answ){
-        if(next_state.answ_pending_cycles > 0) next_state.answ_pending_cycles--;
-        else next_state.answ = false;
+    req.pop();
+    answ.pop();
+    if(!pushed_req){
+        struct WireState<T> r;
+        r.valid = false;
+        req.push(r);
+    }
+    if(!pushed_answ){
+        struct WireState<T> r;
+        r.valid = false;
+        answ.push(r);
     }
 
-    if(next_state.req){
-        if(next_state.req_pending_cycles > 0) next_state.req_pending_cycles--;
-        else next_state.req = false;
-    }
-
+    pushed_req = false;
+    pushed_answ = false;
 }
 
 template <class T>
