@@ -1,29 +1,19 @@
-#ifndef _PROCESS_H_
-#define _PROCESS_H_
+#ifndef _CONSUMER_H_
+#define _CONSUMER_H_
 
-#include "Element.h"
-#include <random>
+#include "Process.h"
+#include "Queue.h"
+#include "utils.h"
 
-typedef struct {
-    int pending_cycles;
-    bool free;
-} ProcessState;
-
-class Process : virtual public Element {
+class Consumer : virtual public Element {
 
     string id;
-    float mean;
-    float std;
-    bool finished;
-    std::normal_distribution<float> latency;
+    Process p;
+    Queue q;
 
-    ProcessState state;
-    ProcessState next_state;
+    public:
 
-public:
-
-    Process();
-    Process(string id, float mean, float std);
+    Consumer(string id, float mean, float std, int size);
 
     string getId();
     int getCredits();
@@ -39,6 +29,5 @@ public:
     stringstream report(); //Print its stats.
 
 };
-
 
 #endif

@@ -1,6 +1,9 @@
 #include "Queue.h"
 #include "utils.h"
 
+Queue::Queue(){
+}
+
 Queue::Queue(string id, int size){
     this->size = size;
     this->id = id;

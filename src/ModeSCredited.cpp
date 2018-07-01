@@ -46,13 +46,14 @@ void ControllerInSCredited::step(){
             if(queued.empty()) std::cout << "[" << e->getId() << "]" << endl;
             assert(!queued.empty());
             credits[queued.front()]++;
+            queued.pop();
         }
 
         for(int i = 0; i < credits.size(); ++i){
             if(credits[i] > 0){
-                //D("[" << e->getId() << "] " << credits[i] << " credits pending for wire: " << i);
+                D("[" << e->getId() << "] " << credits[i] << " credits pending for wire: " << i);
                 if(!wires[i]->answ_busy()){
-                    //D("[" << e->getId() << "] Credit sent for wire: " << i);
+                    D("[" << e->getId() << "] Credit sent for wire: " << i);
                     wires[i]->sendAnsw(SCreditedMessage::TKN);
                     credits[i]--;
                 }
@@ -65,7 +66,7 @@ void ControllerInSCredited::step(){
     } else {
         if(e->request_push()) {
             e->push();
-            //D("Inserting new ticket at Root node");
+            D("Inserting new ticket at Root node: " << e->getId());
         }
     }
 }
@@ -107,7 +108,7 @@ void ControllerOutSCredited::step(){
             } while (!have_credits && (i != lastServed));
 
             if(have_credits){
-                D("[" << e->getId() << "] Job sent to wire: " << i);
+                D("[" << e->getId() << "] Job sent to wire: " << i  << " pending credits: " << credits[i]);
                 lastServed = i;
                 wires[i]->sendReq(SCreditedMessage::REQ);
                 *emited = true;

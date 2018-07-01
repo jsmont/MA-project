@@ -34,6 +34,7 @@ class TypedWire : public Wire{
 
     string getSrcId();
     string getDestId();
+    int getLatency();
 
     bool req_busy();
     bool answ_busy();
@@ -57,7 +58,7 @@ TypedWire<T>::TypedWire(int latency, string srcId, string destId){
     dest_id = destId;
     req = queue<WireState<T> >();
     answ = queue<WireState<T> >();
-    for(int i = 0; i <= latency; ++i){
+    for(int i = 0; i <= latency+1; ++i){
         struct WireState<T> r,a;
         r.valid = false;
         a.valid = false;
@@ -76,6 +77,11 @@ string TypedWire<T>::getSrcId(){
 template <class T>
 string TypedWire<T>::getDestId(){
     return dest_id;
+}
+
+template <class T>
+int TypedWire<T>::getLatency(){
+    return latency;
 }
 
 template <class T>
@@ -160,8 +166,6 @@ void TypedWire<T>::commit(){
         answ.push(r);
     }
 
-    pushed_req = false;
-    pushed_answ = false;
 }
 
 template <class T>
@@ -173,6 +177,15 @@ stringstream TypedWire<T>::report(){
     r << "\tP:" << this->state.answ_pending_cycles << endl;
     //D("Wire reported");
     */
+
+    if(pushed_req)
+        r << "<REQ>" << endl;
+
+    if(pushed_answ)
+        r << "<ANSW>" << endl;
+
+    pushed_req = false;
+    pushed_answ = false;
 
     return r;
 }

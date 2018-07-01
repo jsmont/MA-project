@@ -13,6 +13,7 @@ class Queue : virtual public Element {
 
 public:
 
+    Queue();
     Queue(string id, int size);
 
     string getId();

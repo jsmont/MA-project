@@ -7,12 +7,12 @@
 #include "ControllerOut.h"
 #include <vector>
 
-enum class AckMessage{
+enum class NackMessage{
     REQ,
-    ACK
+    NACK
 };
 
-std::ostream& operator<<(std::ostream& os, AckMessage& f);
+std::ostream& operator<<(std::ostream& os, NackMessage& f);
 
 enum class ControllerInState {
     IDLE,
@@ -24,35 +24,35 @@ enum class ControllerOutState{
     WAITING
 };
 
-class ControllerInAck : public ControllerIn {
+class ControllerInNack : public ControllerIn {
 
     ControllerInState state;
     int lastServed;
 
     Element* e;
-    vector<TypedWire<AckMessage>*> wires;
+    vector<TypedWire<NackMessage>*> wires;
 
     public:
 
-    ControllerInAck(Element* e);
+    ControllerInNack(Element* e);
 
     void step();
     void addWire(Wire* w);
 
 };
 
-class ControllerOutAck : public ControllerOut {
+class ControllerOutNack : public ControllerOut {
 
     ControllerOutState state;
     int lastServed;
     int cycles_waited;
 
     Element* e;
-    vector<TypedWire<AckMessage>*> wires;
+    vector<TypedWire<NackMessage>*> wires;
 
     public:
 
-    ControllerOutAck(Element* e);
+    ControllerOutNack(Element* e);
     void step();
     void addWire(Wire* w);
 

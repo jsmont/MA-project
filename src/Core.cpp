@@ -1,5 +1,6 @@
 #include "Core.h"
 #include "Process.h"
+#include "Consumer.h"
 #include "Queue.h"
 #include "utils.h"
 
@@ -53,6 +54,14 @@ void Core::getAndAddNodes(ifstream &spec){
                 sline >> size;
                 D("Queue found: " << id << " of size: " << size);
                 e = (Element *) new Queue(id, size);
+            } else if(type == "C") {
+                float mean, deviation;
+                int size;
+                sline >> mean >> deviation;
+                sline >> size;
+                D("Consumer found: " << id << " of size: " << size << " and params: " << mean << " " << deviation);
+                e = (Element *) new Consumer(id, mean, deviation, size);
+
             }
 
             Node* n = this->f.node(id, e);

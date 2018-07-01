@@ -1,6 +1,9 @@
 #include "Process.h"
 #include "utils.h"
 
+Process::Process(){
+}
+
 Process::Process(string id, float mean, float std){
 
     this->id = id;
