@@ -6,6 +6,7 @@
 
 enum class FactoryConfiguration {
     Ack,
+    Nack,
     SCredited
 };
 

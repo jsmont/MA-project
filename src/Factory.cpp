@@ -1,5 +1,6 @@
 #include "Factory.h"
 #include "ModeAck.h"
+#include "ModeNack.h"
 #include "ModeSCredited.h"
 
 Factory::Factory(){
@@ -24,6 +25,10 @@ Node* Factory::node(string id, Element* e){
             in = new ControllerInAck(e);
             out = new ControllerOutAck(e);
             break;
+        case FactoryConfiguration::Nack:
+            in = new ControllerInNack(e);
+            out = new ControllerOutNack(e);
+            break;
         case FactoryConfiguration::SCredited:
             bool* emited = new bool;
             *emited = false;
@@ -47,6 +52,9 @@ Wire* Factory::wire(int latency, string srcId, string destId){
     switch(config){
         case FactoryConfiguration::Ack:
             w = (Wire*) new TypedWire<AckMessage>(latency, srcId, destId);
+            break;
+        case FactoryConfiguration::Nack:
+            w = (Wire*) new TypedWire<NackMessage>(latency, srcId, destId);
             break;
         case FactoryConfiguration::SCredited:
             w = (Wire*) new TypedWire<SCreditedMessage>(latency, srcId, destId);

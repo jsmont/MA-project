@@ -51,7 +51,7 @@ stringstream Queue::report(){
     
     stringstream r;
 
-     D( "Q: "  << id << "\tS: " << size << "\tO: " << ocupation);
+     //D( "Q: "  << id << "\tS: " << size << "\tO: " << ocupation);
 
     return r;
 }

@@ -51,9 +51,9 @@ void ControllerInSCredited::step(){
 
         for(int i = 0; i < credits.size(); ++i){
             if(credits[i] > 0){
-                D("[" << e->getId() << "] " << credits[i] << " credits pending for wire: " << i);
+                //D("[" << e->getId() << "] " << credits[i] << " credits pending for wire: " << i);
                 if(!wires[i]->answ_busy()){
-                    D("[" << e->getId() << "] Credit sent for wire: " << i);
+                    //D("[" << e->getId() << "] Credit sent for wire: " << i);
                     wires[i]->sendAnsw(SCreditedMessage::TKN);
                     credits[i]--;
                 }
@@ -66,7 +66,7 @@ void ControllerInSCredited::step(){
     } else {
         if(e->request_push()) {
             e->push();
-            D("Inserting new ticket at Root node: " << e->getId());
+            //D("Inserting new ticket at Root node: " << e->getId());
         }
     }
 }
@@ -99,7 +99,7 @@ void ControllerOutSCredited::step(){
 
     if(wires.size() != 0){
         if(e->request_pop()){
-            D("[" << e->getId() << "] Pending job to be sent");
+            //D("[" << e->getId() << "] Pending job to be sent");
             bool have_credits = false;
             int i = lastServed; 
             do {
@@ -108,7 +108,7 @@ void ControllerOutSCredited::step(){
             } while (!have_credits && (i != lastServed));
 
             if(have_credits){
-                D("[" << e->getId() << "] Job sent to wire: " << i  << " pending credits: " << credits[i]);
+                //D("[" << e->getId() << "] Job sent to wire: " << i  << " pending credits: " << credits[i]);
                 lastServed = i;
                 wires[i]->sendReq(SCreditedMessage::REQ);
                 *emited = true;
@@ -128,7 +128,7 @@ void ControllerOutSCredited::step(){
         if(e->request_pop()){
             e->pop();
             *emited=true;
-            D("Ticket finished");
+            //D("Ticket finished");
         }
     }
 }

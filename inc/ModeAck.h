@@ -14,19 +14,19 @@ enum class AckMessage{
 
 std::ostream& operator<<(std::ostream& os, AckMessage& f);
 
-enum class ControllerInState {
+enum class AckControllerInState {
     IDLE,
     WAITING
 };
 
-enum class ControllerOutState{
+enum class AckControllerOutState{
     IDLE,
     WAITING
 };
 
 class ControllerInAck : public ControllerIn {
 
-    ControllerInState state;
+    AckControllerInState state;
     int lastServed;
 
     Element* e;
@@ -43,7 +43,7 @@ class ControllerInAck : public ControllerIn {
 
 class ControllerOutAck : public ControllerOut {
 
-    ControllerOutState state;
+    AckControllerOutState state;
     int lastServed;
     int cycles_waited;
 

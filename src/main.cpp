@@ -22,6 +22,10 @@ int main(int argc, char* argv[])
 					Fmode = FactoryConfiguration::Ack;
                     std::cout << "Fmode set to: Ack" << std::endl;
 				}
+                else if(string(argv[i+1]) == "nack") {
+					Fmode = FactoryConfiguration::Nack;
+                    std::cout << "Fmode set to: Nack" << std::endl;
+				}
                 else if(string(argv[i+1]) == "scredit") {
 					Fmode = FactoryConfiguration::SCredited;
                     std::cout << "Fmode set to: SCredited" << std::endl;

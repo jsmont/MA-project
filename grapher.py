@@ -108,7 +108,7 @@ def treatLogFile(logFileSrc):
         average_req_per_packet= sum(req_per_packet[cut_req:])/len(req_per_packet[cut_req:])
         print("Average Req per packet: " + str(average_req_per_packet))
         average_answ_per_packet= sum(answ_per_packet[cut_answ:])/len(answ_per_packet[cut_answ:])
-        print("Average Req per packet: " + str(average_answ_per_packet))
+        print("Average Answ per packet: " + str(average_answ_per_packet))
 
         #return (average_throughput, average_latency,) 
         '''
@@ -164,26 +164,27 @@ def treatCase(id, mode, inRate, inSize, outRate, outSize, outQSize, latency):
     subprocess.call("rm ./"+ id + ".graph ./"+ id +".log", shell=True)
     return v
 
-inSize = 2;
+inSize = 5;
 outRate = 100;
 
-outSize = 1;
+outSize = 3;
 outQSize = 50;
 latency = 10;
 
-modes=("ack", "scredit",)
+modes=("ack", "nack", "scredit",)
 #subprocess.call("make", shell=True)
 
 def iterInRate(inRate, mode):
     return treatCase("inRate" + str(inRate) + "-" + mode, mode, inRate, inSize, outRate, outSize, outQSize, latency)
 
-#iterInRate(190, "scredit")
-#iterInRate(100,"ack")
+#iterInRate(10, "scredit")
+#iterInRate(10,"ack")
+#iterInRate(10,"nack")
 initialValue = 10
 finalValue = 1000 
 step=5
 
-values = Parallel(n_jobs=8)(delayed(iterInRate)(i, j) for i  in range(initialValue, finalValue, step) for j in modes)
+values = Parallel(n_jobs=4)(delayed(iterInRate)(i, j) for i  in range(initialValue, finalValue, step) for j in modes)
 
 idx = [ 1/rate for rate in range(initialValue, finalValue, step)]
 
@@ -194,7 +195,7 @@ plt.xlabel("Input throughput");
 plt.ylabel("Output throughput");
 for i in range(len(modes)):
     plt.loglog(idx, [ v[0] for v in values[i::len(modes)]], label=modes[i])
-plt.axhline(y=1/outRate, label="Output ideal throughput", linestyle="--")
+plt.axhline(y=outSize/outRate, label="Output ideal throughput", linestyle="--")
 plt.legend()
 plt.figure(figure_count);
 figure_count+=1;
@@ -227,7 +228,6 @@ plt.xlabel("Output throughput")
 plt.ylabel("Latency")
 for i in range(len(modes)):
     plt.scatter([v[0] for v in values[i::len(modes)]], [v[1] for v in values[i::len(modes)]], s=1, label=modes[i]) 
-plt.axvline(x=1/outRate, label="Output ideal throughput", linestyle="--")
+plt.axvline(x=outSize/outRate, label="Output ideal throughput", linestyle="--")
 plt.legend()
 plt.show()
-

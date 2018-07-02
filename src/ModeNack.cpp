@@ -20,7 +20,7 @@ ControllerInNack::ControllerInNack(Element* e){
 
     this->e = e;
     wires = vector<TypedWire<NackMessage>*>(0);
-    state = ControllerInState::WAITING;
+    state = NackControllerInState::WAITING;
     lastServed = 0;
 
 }
@@ -36,10 +36,12 @@ void ControllerInNack::step(){
                 NackMessage m = wires[i]->getReq();
                 if(!e->request_push()){
                     wires[i]->sendAnsw(NackMessage::NACK);
+                } else {
+                    e->push();
                 }
 
                 lastServed = i;
-                state = ControllerInState::WAITING;
+                state = NackControllerInState::WAITING;
             }
             i = (i +1) % wires.size();
         } while(i != initial_i);
@@ -72,7 +74,7 @@ ControllerOutNack::ControllerOutNack(Element* e){
     this->e = e;
     wires = vector<TypedWire<NackMessage>*>(0);
 
-    state = ControllerOutState::IDLE;
+    state = NackControllerOutState::IDLE;
     lastServed = 0;
 }
 
@@ -85,39 +87,41 @@ void ControllerOutNack::step(){
     if(wires.size() != 0){
 
         bool served = false;
-        //if(state == ControllerOutState::IDLE) D("S: IDLE");
-        //if(state == ControllerOutState::WAITING) D("S: WAITING");
+        //if(state == NackControllerOutState::IDLE) D("S: IDLE");
+        //if(state == NackControllerOutState::WAITING) D("S: WAITING");
         switch(state){
 
-            case ControllerOutState::IDLE:
+            case NackControllerOutState::IDLE:
                 if(e->request_pop()){
                     //D("Trying to serve ticket N:" << e->getId())
                         for(int i = (lastServed+1)%wires.size(); i != lastServed && !served; i = (i+1)%wires.size()){
                             if(!wires[i]->req_busy()){
                                 wires[i]->sendReq(NackMessage::REQ);
-                                state=ControllerOutState::WAITING;
+                                state=NackControllerOutState::WAITING;
                                 served=true;
                                 lastServed = i;
+                                cycles_waited = 0;
                             }
                         }
                     if(!served){
                         if(!wires[lastServed]->req_busy()){
                             wires[lastServed]->sendReq(NackMessage::REQ);
-                            state=ControllerOutState::WAITING;
+                            state=NackControllerOutState::WAITING;
                             served=true;
+                            cycles_waited = 0;
                         }
                     }
                 }
                 break;
-            case ControllerOutState::WAITING:
+            case NackControllerOutState::WAITING:
                 if(wires[lastServed]->arrivedAnsw()){
                     assert(cycles_waited == (2*wires[lastServed]->getLatency()+1));
                     NackMessage answer = wires[lastServed]->getAnsw();
-                    state=ControllerOutState::IDLE;
+                    state=NackControllerOutState::IDLE;
                 } else {
                     if(cycles_waited == (2*wires[lastServed]->getLatency() +1)){
                         e->pop();
-                        state=ControllerOutState::IDLE;
+                        state=NackControllerOutState::IDLE;
                     }
                     else{
                         cycles_waited++;

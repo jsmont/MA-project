@@ -58,7 +58,7 @@ TypedWire<T>::TypedWire(int latency, string srcId, string destId){
     dest_id = destId;
     req = queue<WireState<T> >();
     answ = queue<WireState<T> >();
-    for(int i = 0; i <= latency+1; ++i){
+    for(int i = 0; i <= latency; ++i){
         struct WireState<T> r,a;
         r.valid = false;
         a.valid = false;

@@ -1,5 +1,5 @@
-#ifndef __MODE_ACK_H__
-#define __MODE_ACK_H__
+#ifndef __MODE_NACK_H__
+#define __MODE_NACK_H__
 
 #include "Element.h"
 #include "Wire.h"
@@ -14,19 +14,19 @@ enum class NackMessage{
 
 std::ostream& operator<<(std::ostream& os, NackMessage& f);
 
-enum class ControllerInState {
+enum class NackControllerInState {
     IDLE,
     WAITING
 };
 
-enum class ControllerOutState{
+enum class NackControllerOutState{
     IDLE,
     WAITING
 };
 
 class ControllerInNack : public ControllerIn {
 
-    ControllerInState state;
+    NackControllerInState state;
     int lastServed;
 
     Element* e;
@@ -43,7 +43,7 @@ class ControllerInNack : public ControllerIn {
 
 class ControllerOutNack : public ControllerOut {
 
-    ControllerOutState state;
+    NackControllerOutState state;
     int lastServed;
     int cycles_waited;
 
